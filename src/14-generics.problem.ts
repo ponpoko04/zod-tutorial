@@ -4,7 +4,12 @@ import { it } from "vitest";
 import { z } from "zod";
 import { Equal, Expect } from "./helpers/type-utils";
 
-const genericFetch = (url: string, schema: z.ZodSchema) => {
+// 解1: fetch提供側で型を指定することで呼び出す側に制約をつける
+// const genericFetch = (url: string, schema: z.ZodSchema<{ name: string }>) => {
+
+// 解2: 呼び出し側で期待する型を渡すことで、その渡された型にparseされることを期待する
+// * fetch先のAPI仕様変更に気付けるようにする、などが目的か？
+const genericFetch = <ZodSchema extends z.ZodSchema>(url: string, schema: ZodSchema): Promise<z.infer<ZodSchema>> => {
   //                 ^ 🕵️‍♂️
   return fetch(url)
     .then((res) => res.json())
